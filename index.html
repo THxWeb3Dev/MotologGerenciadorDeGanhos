@@ -4,20 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MOTOLOG PRO</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffcc00">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="icon" href="icone-motolog.png" type="image/png">
+    <link rel="apple-touch-icon" href="icone-motolog.png">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>MOTOLOG EXPRESS</h1>
-            <p class="subtitle">GERENCIADOR DE GANHOS | PRO V 1.0</p>
-            <link rel="manifest" href="manifest.json">
-            <meta name="theme-color" content="#ffcc00">
-            <meta name="apple-mobile-web-app-capable" content="yes">
-            <meta name="apple-mobile-web-app-status-bar-style" content="black">
-            <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/719/719018.png">
-
+            <h1>🏍️ MOTOLOG</h1>
+            <p class="subtitle">GERENCIADOR DE GANHOS</p>
         </header>
+
+        <div id="pwa-install-banner" class="hidden">
+            <span>Baixe o App Oficial</span>
+            <button id="btn-install-pwa">INSTALAR</button>
+        </div>
 
         <section class="dashboard">
             <div class="card faturamento-total">
@@ -49,15 +58,24 @@
         </section>
 
         <section class="formulario">
-            <h3>📝 REGISTRAR ENTREGA | CORRIDA</h3>
+            <h3>📝 REGISTRAR ENTREGA</h3>
             <div class="modalidade-selector">
                 <label class="radio-btn"><input type="radio" name="mod" value="99" checked><span>App 99</span></label>
                 <label class="radio-btn"><input type="radio" name="mod" value="Particular"><span>Particular</span></label>
             </div>
             <div class="input-stack">
-                <div class="input-group"><input type="text" id="origem" placeholder="Origem"><input type="text" id="destino" placeholder="Destino"></div>
-                <div class="input-group"><input type="number" id="km" placeholder="KM"><input type="number" id="valor" placeholder="R$"></div>
-                <label class="toggle-container"><input type="checkbox" id="tem-parada" onchange="toggleParada()"><span>Paradas extras?</span></label>
+                <div class="input-group">
+                    <input type="text" id="origem" placeholder="Origem">
+                    <input type="text" id="destino" placeholder="Destino">
+                </div>
+                <div class="input-group">
+                    <input type="number" id="km" placeholder="KM">
+                    <input type="number" id="valor" placeholder="R$">
+                </div>
+                <label class="toggle-container">
+                    <input type="checkbox" id="tem-parada" onchange="toggleParada()">
+                    <span>Paradas extras?</span>
+                </label>
                 <input type="text" id="detalhe-parada" class="hidden" placeholder="Onde parou?">
                 <button id="btn-salvar">SALVAR REGISTRO</button>
             </div>
@@ -71,10 +89,14 @@
 
     <div id="modal-detalhes" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h2 id="modal-titulo">Detalhes</h2><span onclick="fecharModal()" class="close">&times;</span></div>
+            <div class="modal-header">
+                <h2 id="modal-titulo">Detalhes</h2>
+                <span onclick="fecharModal()" class="close">&times;</span>
+            </div>
             <div id="modal-corpo"></div>
         </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
