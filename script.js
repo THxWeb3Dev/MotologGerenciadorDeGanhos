@@ -89,4 +89,9 @@ function renderLista(db) {
             <div><p style="font-size:0.6rem;color:#666">${c.mod}</p><p><b>${c.origem} ⮕ ${c.destino}</b></p></div>
             <div style="text-align:right"><b>R$ ${c.valor.toFixed(2)}</b></div>
         </div>`).join('');
+    // Adicione isso no final do seu script.js
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
 }
