@@ -16,7 +16,6 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  // Exibe o banner para instalar
   document.getElementById('pwa-install-banner').classList.remove('hidden');
 });
 
@@ -30,13 +29,34 @@ document.getElementById('btn-install-pwa').addEventListener('click', async () =>
 });
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', () => atualizar());
+document.addEventListener('DOMContentLoaded', () => {
+    definirDataPadrao();
+    atualizar();
+});
+
+// Função para deixar o calendário sempre no dia de hoje
+function definirDataPadrao() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    document.getElementById('data-corrida').value = `${ano}-${mes}-${dia}`;
+}
 
 function toggleParada() { 
     document.getElementById('detalhe-parada').classList.toggle('hidden', !document.getElementById('tem-parada').checked); 
 }
 
 document.getElementById('btn-salvar').onclick = () => {
+    // Pegar a data escolhida pelo usuário
+    const dataSelecionadaStr = document.getElementById('data-corrida').value;
+    let dataFinal = new Date();
+    
+    if (dataSelecionadaStr) {
+        const [ano, mes, dia] = dataSelecionadaStr.split('-');
+        dataFinal.setFullYear(ano, mes - 1, dia); // Mantém a hora atual, mas muda o dia
+    }
+
     const corrida = {
         id: Date.now(),
         mod: document.querySelector('input[name="mod"]:checked').value,
@@ -46,20 +66,24 @@ document.getElementById('btn-salvar').onclick = () => {
         valor: parseFloat(document.getElementById('valor').value) || 0,
         parada: document.getElementById('tem-parada').checked,
         desc: document.getElementById('detalhe-parada').value,
-        data: new Date().toISOString()
+        data: dataFinal.toISOString() // Salva com a data (hoje ou retroativa)
     };
+
     if(!corrida.origem || corrida.valor <= 0) return alert("Preencha origem e valor!");
+    
     const db = JSON.parse(localStorage.getItem(DB) || "[]");
     db.push(corrida);
     localStorage.setItem(DB, JSON.stringify(db));
-    limpar(); atualizar();
+    
+    limpar(); 
+    atualizar();
 };
 
 function atualizar() {
     const db = JSON.parse(localStorage.getItem(DB) || "[]");
     const agora = new Date();
     const hoje = db.filter(c => new Date(c.data).toDateString() === agora.toDateString());
-    const mes = db.filter(c => new Date(c.data).getMonth() === agora.getMonth());
+    const mes = db.filter(c => new Date(c.data).getMonth() === agora.getMonth() && new Date(c.data).getFullYear() === agora.getFullYear());
     
     document.getElementById('ganho-total').innerText = fmt(db.reduce((a,b)=>a+b.valor,0));
     document.getElementById('ganho-hoje').innerText = fmt(hoje.reduce((a,b)=>a+b.valor,0));
@@ -73,23 +97,31 @@ function renderGrafico(db) {
     const container = document.getElementById('grafico-real');
     container.innerHTML = "";
     const hoje = new Date();
+    hoje.setHours(23, 59, 59, 999); // Final do dia para o cálculo retroativo funcionar bem
+    
     let totalSemana = 0;
 
     for(let i=0; i<7; i++) {
         const diaDados = db.filter(c => {
             const d = new Date(c.data);
-            return d.getDay() === i && (hoje - d) / 864e5 < 7;
+            const diffDias = (hoje - d) / (1000 * 60 * 60 * 24);
+            return d.getDay() === i && diffDias >= 0 && diffDias < 7;
         });
         const total = diaDados.reduce((a,b)=>a+b.valor, 0);
         totalSemana += total;
         const bar = document.createElement('div');
-        bar.className = `bar ${hoje.getDay() === i ? 'active' : ''}`;
+        bar.className = `bar ${new Date().getDay() === i ? 'active' : ''}`;
         bar.style.height = `${Math.max((total/300)*100, 5)}%`;
         bar.onclick = () => abrirModal(diaDados, i);
         container.appendChild(bar);
     }
     document.getElementById('99-ganho-semana').innerText = fmt(totalSemana);
-    document.getElementById('99-qtd-corridas').innerText = db.filter(c => (hoje - new Date(c.data))/864e5 < 7).length;
+    
+    const qtdSemana = db.filter(c => {
+        const diff = (hoje - new Date(c.data)) / (1000 * 60 * 60 * 24);
+        return diff >= 0 && diff < 7;
+    }).length;
+    document.getElementById('99-qtd-corridas').innerText = qtdSemana;
 }
 
 function abrirModal(dados, idx) {
@@ -100,7 +132,12 @@ function abrirModal(dados, idx) {
     const vPart = dados.filter(c=>c.mod==="Particular").reduce((a,b)=>a+b.valor,0);
     const kms = dados.reduce((a,b)=>a+b.km,0);
     const t = dados.map(c=>new Date(c.data).getTime());
-    const horas = ((Math.max(...t) - Math.min(...t))/36e5).toFixed(1);
+    
+    // Calcula as horas (se houver mais de uma corrida, mostra a diferença. Se for só 1, mostra tempo 0 ou fixo)
+    let horas = "0.0";
+    if (t.length > 1) {
+        horas = ((Math.max(...t) - Math.min(...t))/36e5).toFixed(1);
+    }
 
     document.getElementById('modal-corpo').innerHTML = `
         <div class="detail-row"><span style="color:#888">App 99</span><b>${fmt(v99)}</b></div>
@@ -113,13 +150,20 @@ function abrirModal(dados, idx) {
 
 function fecharModal() { document.getElementById('modal-detalhes').style.display="none"; }
 function fmt(v) { return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
-function limpar() { ["origem","destino","km","valor","detalhe-parada"].forEach(id=>document.getElementById(id).value=""); document.getElementById('tem-parada').checked=false; toggleParada(); }
+
+function limpar() { 
+    ["origem","destino","km","valor","detalhe-parada"].forEach(id=>document.getElementById(id).value=""); 
+    document.getElementById('tem-parada').checked=false; 
+    toggleParada(); 
+    definirDataPadrao(); // Volta pro dia de hoje ao limpar/salvar
+}
 
 function renderLista(db) {
     const busca = document.getElementById('busca').value.toLowerCase();
     document.getElementById('lista-corridas').innerHTML = db.filter(c=>c.origem.toLowerCase().includes(busca)).slice().reverse().map(c=>`
         <div class="item-corrida" style="border-left-color:${c.mod==='99'?'#ffcc00':'#00ff88'}">
-            <div><p style="font-size:0.6rem;color:#666;text-transform:uppercase">${c.mod}</p><p><b>${c.origem} ⮕ ${c.destino}</b></p></div>
+            <div><p style="font-size:0.6rem;color:#666;text-transform:uppercase">${c.mod}</p><p><b>${c.origem} ⮕ ${c.destino}</b></p>
+            <p style="font-size:0.65rem;color:#888;margin-top:2px;">${new Date(c.data).toLocaleDateString()} ${c.km > 0 ? `• ${c.km}km` : ''}</p></div>
             <div style="text-align:right"><b>R$ ${c.valor.toFixed(2)}</b><span onclick="remover(${c.id})" style="display:block;font-size:0.6rem;color:#ff4444;margin-top:5px;cursor:pointer">Remover</span></div>
         </div>`).join('');
 }
