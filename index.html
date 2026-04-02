@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MOTOLOG PRO</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MOTOLOG EXPRESS</h1>
+            <p class="subtitle">GERENCIADOR DE GANHOS | PRO V 1.0</p>
+        </header>
+
+        <section class="dashboard">
+            <div class="card faturamento-total">
+                <span class="card-label">Faturamento Total</span>
+                <p id="ganho-total">R$ 0,00</p>
+            </div>
+            <div class="stats-row">
+                <div class="card"><span class="card-label">Hoje</span><p id="ganho-hoje">R$ 0,00</p></div>
+                <div class="card"><span class="card-label">Mês</span><p id="ganho-mes">R$ 0,00</p></div>
+            </div>
+        </section>
+
+        <section class="central-ganhos">
+            <div class="ganhos-header">
+                <h3>Central de Ganhos</h3>
+                <span id="periodo-semana">Esta Semana</span>
+            </div>
+            <div class="card-99">
+                <div id="grafico-real" class="grafico-container"></div>
+                <div class="dias-semana">
+                    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                </div>
+                <hr class="divider">
+                <div class="stats-99">
+                    <div class="stat-item"><span class="stat-label">Ganhos (7d)</span><span class="stat-value" id="99-ganho-semana">R$ 0,00</span></div>
+                    <div class="stat-item"><span class="stat-label">Corridas</span><span class="stat-value" id="99-qtd-corridas">0</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="formulario">
+            <h3>📝 REGISTRAR ENTREGA | CORRIDA</h3>
+            <div class="modalidade-selector">
+                <label class="radio-btn"><input type="radio" name="mod" value="99" checked><span>App 99</span></label>
+                <label class="radio-btn"><input type="radio" name="mod" value="Particular"><span>Particular</span></label>
+            </div>
+            <div class="input-stack">
+                <div class="input-group"><input type="text" id="origem" placeholder="Origem"><input type="text" id="destino" placeholder="Destino"></div>
+                <div class="input-group"><input type="number" id="km" placeholder="KM"><input type="number" id="valor" placeholder="R$"></div>
+                <label class="toggle-container"><input type="checkbox" id="tem-parada" onchange="toggleParada()"><span>Paradas extras?</span></label>
+                <input type="text" id="detalhe-parada" class="hidden" placeholder="Onde parou?">
+                <button id="btn-salvar">SALVAR REGISTRO</button>
+            </div>
+        </section>
+
+        <section class="listagem">
+            <input type="text" id="busca" class="search-input" placeholder="🔍 Filtrar histórico...">
+            <div id="lista-corridas"></div>
+        </section>
+    </div>
+
+    <div id="modal-detalhes" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 id="modal-titulo">Detalhes</h2><span onclick="fecharModal()" class="close">&times;</span></div>
+            <div id="modal-corpo"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
