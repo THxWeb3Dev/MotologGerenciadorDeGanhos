@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     atualizar();
 });
 
-// Função para deixar o calendário sempre no dia de hoje
 function definirDataPadrao() {
     const hoje = new Date();
     const ano = hoje.getFullYear();
@@ -48,13 +47,12 @@ function toggleParada() {
 }
 
 document.getElementById('btn-salvar').onclick = () => {
-    // Pegar a data escolhida pelo usuário
     const dataSelecionadaStr = document.getElementById('data-corrida').value;
     let dataFinal = new Date();
     
     if (dataSelecionadaStr) {
         const [ano, mes, dia] = dataSelecionadaStr.split('-');
-        dataFinal.setFullYear(ano, mes - 1, dia); // Mantém a hora atual, mas muda o dia
+        dataFinal.setFullYear(ano, mes - 1, dia); 
     }
 
     const corrida = {
@@ -66,7 +64,7 @@ document.getElementById('btn-salvar').onclick = () => {
         valor: parseFloat(document.getElementById('valor').value) || 0,
         parada: document.getElementById('tem-parada').checked,
         desc: document.getElementById('detalhe-parada').value,
-        data: dataFinal.toISOString() // Salva com a data (hoje ou retroativa)
+        data: dataFinal.toISOString()
     };
 
     if(!corrida.origem || corrida.valor <= 0) return alert("Preencha origem e valor!");
@@ -97,7 +95,7 @@ function renderGrafico(db) {
     const container = document.getElementById('grafico-real');
     container.innerHTML = "";
     const hoje = new Date();
-    hoje.setHours(23, 59, 59, 999); // Final do dia para o cálculo retroativo funcionar bem
+    hoje.setHours(23, 59, 59, 999);
     
     let totalSemana = 0;
 
@@ -124,6 +122,10 @@ function renderGrafico(db) {
     document.getElementById('99-qtd-corridas').innerText = qtdSemana;
 }
 
+// ==========================================
+// SISTEMA DE MODAIS
+// ==========================================
+
 function abrirModal(dados, idx) {
     if(!dados.length) return;
     const dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
@@ -133,7 +135,6 @@ function abrirModal(dados, idx) {
     const kms = dados.reduce((a,b)=>a+b.km,0);
     const t = dados.map(c=>new Date(c.data).getTime());
     
-    // Calcula as horas (se houver mais de uma corrida, mostra a diferença. Se for só 1, mostra tempo 0 ou fixo)
     let horas = "0.0";
     if (t.length > 1) {
         horas = ((Math.max(...t) - Math.min(...t))/36e5).toFixed(1);
@@ -147,15 +148,36 @@ function abrirModal(dados, idx) {
     `;
     document.getElementById('modal-detalhes').style.display = "flex";
 }
-
 function fecharModal() { document.getElementById('modal-detalhes').style.display="none"; }
+
+function abrirModalPix() { document.getElementById('modal-pix').style.display="flex"; }
+function fecharModalPix() { 
+    document.getElementById('modal-pix').style.display="none"; 
+    document.getElementById('btn-copy-pix').innerText = "📋 Copiar Chave PIX";
+}
+
+function abrirModalClube() { document.getElementById('modal-clube').style.display="flex"; }
+function fecharModalClube() { document.getElementById('modal-clube').style.display="none"; }
+
+function copiarPix() {
+    const chave = "motologrj@gmail.com";
+    navigator.clipboard.writeText(chave).then(() => {
+        const btn = document.getElementById('btn-copy-pix');
+        btn.innerText = "✅ Chave Copiada!";
+        setTimeout(() => { btn.innerText = "📋 Copiar Chave PIX"; }, 3000);
+    }).catch(err => {
+        alert("Erro ao copiar. Selecione o e-mail na tela e copie manualmente.");
+    });
+}
+// ==========================================
+
 function fmt(v) { return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 
 function limpar() { 
     ["origem","destino","km","valor","detalhe-parada"].forEach(id=>document.getElementById(id).value=""); 
     document.getElementById('tem-parada').checked=false; 
     toggleParada(); 
-    definirDataPadrao(); // Volta pro dia de hoje ao limpar/salvar
+    definirDataPadrao(); 
 }
 
 function renderLista(db) {
