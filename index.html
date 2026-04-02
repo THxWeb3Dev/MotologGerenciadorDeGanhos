@@ -23,6 +23,11 @@
             <p class="subtitle">GERENCIADOR DE GANHOS | V1.0</p>
         </header>
 
+        <div class="action-buttons">
+            <button onclick="abrirModalPix()" class="btn-action">☕ Apoie o Desenvolvedor</button>
+            <button onclick="abrirModalClube()" class="btn-action">⭐ Clube de Vantagens</button>
+        </div>
+
         <div id="pwa-install-banner" class="hidden">
             <span>Baixe o App Oficial</span>
             <button id="btn-install-pwa">INSTALAR</button>
@@ -42,7 +47,7 @@
         <section class="central-ganhos">
             <div class="ganhos-header">
                 <h3>Central de Ganhos</h3>
-                <span id="periodo-semana">Esta Semana</span>
+                <span id="periodo-semana"></span>
             </div>
             <div class="card-99">
                 <div id="grafico-real" class="grafico-container"></div>
@@ -96,6 +101,43 @@
                 <span onclick="fecharModal()" class="close">&times;</span>
             </div>
             <div id="modal-corpo"></div>
+        </div>
+    </div>
+
+    <div id="modal-pix" class="modal">
+        <div class="modal-content text-center">
+            <div class="modal-header">
+                <h2>Apoie o Projeto</h2>
+                <span onclick="fecharModalPix()" class="close">&times;</span>
+            </div>
+            <p class="modal-desc">Sua contribuição ajuda a manter o aplicativo gratuito, sem anúncios e com novas atualizações!</p>
+            <div class="qr-container">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=motologrj@gmail.com" alt="QR Code PIX" class="qr-code">
+            </div>
+            <p class="pix-key-text">motologrj@gmail.com</p>
+            <button id="btn-copy-pix" onclick="copiarPix()">📋 Copiar Chave PIX</button>
+        </div>
+    </div>
+
+    <div id="modal-clube" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⭐ Clube de Vantagens</h2>
+                <span onclick="fecharModalClube()" class="close">&times;</span>
+            </div>
+            <p class="modal-desc">Produtos selecionados com o melhor custo-benefício para facilitar o seu dia a dia nas entregas.</p>
+            
+            <div class="produtos-lista">
+                <div class="produto-item">
+                    <img src="capacete-oculos.png" alt="Capacete com Óculos Interno" class="produto-img">
+                    
+                    <div class="produto-info">
+                        <h4>Capacete com Óculos Interno</h4>
+                        <p>Proteção contra chuva e sol. Ideal para não perder corridas nos dias difíceis.</p>
+                    </div>
+                    <a href="https://s.shopee.com.br/1LbW70H2qc" target="_blank" class="btn-comprar">🛒 Comprar Agora</a>
+                </div>
+            </div>
         </div>
     </div>
     
