@@ -5,32 +5,46 @@ body { background: var(--bg); color: var(--text); padding: 15px; }
 header { text-align: center; margin-bottom: 20px; }
 header h1 { color: var(--accent); font-style: italic; font-weight: 900; }
 .subtitle { font-size: 0.6rem; color: var(--dim); letter-spacing: 2px; }
+
+/* Banner Instalação PWA */
+#pwa-install-banner { background: var(--accent); color: #000; padding: 12px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3); }
+#btn-install-pwa { background: #000; color: var(--accent); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 900; cursor: pointer; }
+#pwa-install-banner.hidden { display: none; }
+
 .dashboard { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
 .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; }
 .faturamento-total { border-bottom: 4px solid var(--accent); }
 .faturamento-total p { font-size: 2rem; color: var(--accent); font-weight: 900; }
 .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .card-label { font-size: 0.6rem; color: var(--dim); text-transform: uppercase; }
+
 .central-ganhos { margin-bottom: 25px; }
 .card-99 { background: #1c1c1e; border-radius: 16px; padding: 20px; }
 .grafico-container { display: flex; align-items: flex-end; justify-content: space-between; height: 80px; }
-.bar { width: 10%; background: #333; border-radius: 4px; cursor: pointer; min-height: 4px; }
+.bar { width: 10%; background: #333; border-radius: 4px; cursor: pointer; min-height: 4px; transition: 0.3s; }
+.bar:active { background: #555; }
 .bar.active { background: var(--accent); }
 .dias-semana { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.6rem; color: var(--dim); }
 .stats-99 { display: flex; justify-content: space-between; text-align: center; margin-top: 15px; }
 .stat-value { font-size: 0.9rem; font-weight: bold; display: block; }
+
 .formulario { background: var(--card); padding: 20px; border-radius: 16px; }
 .modalidade-selector { display: flex; gap: 8px; margin-bottom: 15px; }
 .radio-btn { flex: 1; }
 .radio-btn input { display: none; }
-.radio-btn span { display: block; padding: 10px; background: #1a1a1a; border-radius: 8px; text-align: center; font-size: 0.8rem; border: 1px solid #333; }
-.radio-btn input:checked + span { background: var(--accent); color: #000; }
+.radio-btn span { display: block; padding: 10px; background: #1a1a1a; border-radius: 8px; text-align: center; font-size: 0.8rem; border: 1px solid #333; transition: 0.2s; }
+.radio-btn input:checked + span { background: var(--accent); color: #000; border-color: var(--accent); }
 .input-stack { display: flex; flex-direction: column; gap: 10px; }
 .input-group { display: flex; gap: 10px; }
 input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; width: 100%; }
-.hidden { display: none; }
-#btn-salvar { background: var(--accent); border: none; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; }
+.hidden { display: none !important; }
+#btn-salvar { background: var(--accent); border: none; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 5px; }
+
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 100; }
-.modal-content { background: #1c1c1e; width: 85%; padding: 25px; border-radius: 20px; border: 1px solid #333; }
-.detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+.modal-content { background: #1c1c1e; width: 85%; max-width: 380px; padding: 25px; border-radius: 20px; border: 1px solid #333; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.close { font-size: 1.5rem; color: var(--dim); cursor: pointer; }
+.detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+
+.search-input { margin: 20px 0 15px; }
 .item-corrida { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 4px solid #333; }
