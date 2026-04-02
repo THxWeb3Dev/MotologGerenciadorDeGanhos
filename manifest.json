@@ -1,0 +1,18 @@
+{
+  "short_name": "MOTOLOG",
+  "name": "MOTOLOG | Gerenciador de Ganhos",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/719/719018.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#000000",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#ffcc00"
+}
+
