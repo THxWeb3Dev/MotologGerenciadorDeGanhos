@@ -36,7 +36,12 @@ header h1 { color: var(--accent); font-style: italic; font-weight: 900; }
 .radio-btn input:checked + span { background: var(--accent); color: #000; border-color: var(--accent); }
 .input-stack { display: flex; flex-direction: column; gap: 10px; }
 .input-group { display: flex; gap: 10px; }
-input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; width: 100%; }
+
+/* Estilização dos Inputs incluindo Data */
+input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; width: 100%; font-size: 1rem;}
+.date-input { color: var(--accent); font-weight: bold; text-align: center; }
+::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; } /* Inverte cor do ícone calendário no dark mode */
+
 .hidden { display: none !important; }
 #btn-salvar { background: var(--accent); border: none; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 5px; }
 
