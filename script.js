@@ -35,11 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function definirDataPadrao() {
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-    const dia = String(hoje.getDate()).padStart(2, '0');
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const mins = String(agora.getMinutes()).padStart(2, '0');
+    
     document.getElementById('data-corrida').value = `${ano}-${mes}-${dia}`;
+    document.getElementById('hora-corrida').value = `${horas}:${mins}`;
 }
 
 function toggleParada() { 
@@ -47,19 +51,21 @@ function toggleParada() {
 }
 
 document.getElementById('btn-salvar').onclick = () => {
-    const dataSelecionadaStr = document.getElementById('data-corrida').value;
-    let dataFinal = new Date();
+    const dataVal = document.getElementById('data-corrida').value;
+    const horaVal = document.getElementById('hora-corrida').value;
     
-    if (dataSelecionadaStr) {
-        const [ano, mes, dia] = dataSelecionadaStr.split('-');
-        dataFinal.setFullYear(ano, mes - 1, dia); 
+    let dataFinal = new Date();
+    if (dataVal && horaVal) {
+        const [ano, mes, dia] = dataVal.split('-');
+        const [h, m] = horaVal.split(':');
+        dataFinal = new Date(ano, mes - 1, dia, h, m);
     }
 
     const corrida = {
         id: Date.now(),
         mod: document.querySelector('input[name="mod"]:checked').value,
-        origem: document.getElementById('origem').value,
-        destino: document.getElementById('destino').value,
+        origem: document.getElementById('origem').value.trim(),
+        destino: document.getElementById('destino').value.trim(),
         km: parseFloat(document.getElementById('km').value) || 0,
         valor: parseFloat(document.getElementById('valor').value) || 0,
         parada: document.getElementById('tem-parada').checked,
@@ -80,15 +86,19 @@ document.getElementById('btn-salvar').onclick = () => {
 function atualizar() {
     const db = JSON.parse(localStorage.getItem(DB) || "[]");
     const agora = new Date();
+    
     const hoje = db.filter(c => new Date(c.data).toDateString() === agora.toDateString());
-    const mes = db.filter(c => new Date(c.data).getMonth() === agora.getMonth() && new Date(c.data).getFullYear() === agora.getFullYear());
+    const mes = db.filter(c => {
+        const d = new Date(c.data);
+        return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+    });
     
     document.getElementById('ganho-total').innerText = fmt(db.reduce((a,b)=>a+b.valor,0));
     document.getElementById('ganho-hoje').innerText = fmt(hoje.reduce((a,b)=>a+b.valor,0));
     document.getElementById('ganho-mes').innerText = fmt(mes.reduce((a,b)=>a+b.valor,0));
     
     renderGrafico(db);
-    renderLista(db);
+    renderListaAgrupada(db);
 }
 
 function renderGrafico(db) {
@@ -123,9 +133,70 @@ function renderGrafico(db) {
 }
 
 // ==========================================
+// RENDERIZAÇÃO DA LISTA AGRUPADA
+// ==========================================
+function renderListaAgrupada(db) {
+    const busca = document.getElementById('busca').value.toLowerCase();
+    const listaDiv = document.getElementById('lista-agrupada');
+    listaDiv.innerHTML = "";
+
+    // 1. Filtra a busca
+    let filtradas = db.filter(c => c.origem.toLowerCase().includes(busca) || c.destino.toLowerCase().includes(busca));
+
+    // 2. Ordena da corrida mais recente para a mais antiga
+    filtradas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+    // 3. Agrupa as corridas pelas datas
+    const grupos = {};
+    filtradas.forEach(c => {
+        const dataKey = new Date(c.data).toDateString();
+        if (!grupos[dataKey]) grupos[dataKey] = { total: 0, corridas: [] };
+        grupos[dataKey].total += c.valor;
+        grupos[dataKey].corridas.push(c);
+    });
+
+    // 4. Cria o HTML agrupado
+    for (const dataKey in grupos) {
+        const dataObj = new Date(dataKey);
+        let dataLabel = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        
+        const hoje = new Date().toDateString();
+        const ontem = new Date(Date.now() - 864e5).toDateString();
+        
+        if (dataKey === hoje) dataLabel = "Hoje";
+        else if (dataKey === ontem) dataLabel = "Ontem";
+
+        const grupoHTML = `
+            <div class="grupo-data">
+                <div class="cabecalho-grupo">
+                    <span>📅 ${dataLabel}</span>
+                    <span class="total-dia">Total: ${fmt(grupos[dataKey].total)}</span>
+                </div>
+                <div class="corridas-do-dia">
+                    ${grupos[dataKey].corridas.map(c => `
+                        <div class="item-corrida" style="border-left-color:${c.mod==='99'?'#ffcc00':'#00ff88'}">
+                            <div>
+                                <span class="hora-item">🕒 ${new Date(c.data).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+                                <p style="font-size:0.6rem;color:#666;text-transform:uppercase">${c.mod}</p>
+                                <p><b>${c.origem} ⮕ ${c.destino}</b></p>
+                                <p style="font-size:0.65rem;color:#888;margin-top:2px;">${c.km > 0 ? `${c.km}km` : ''}</p>
+                            </div>
+                            <div style="text-align:right; display:flex; flex-direction:column; justify-content:space-between;">
+                                <b>R$ ${c.valor.toFixed(2)}</b>
+                                <span onclick="remover(${c.id})" style="font-size:0.6rem;color:#ff4444;cursor:pointer;">Remover</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        listaDiv.innerHTML += grupoHTML;
+    }
+}
+
+// ==========================================
 // SISTEMA DE MODAIS
 // ==========================================
-
 function abrirModal(dados, idx) {
     if(!dados.length) return;
     const dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
@@ -178,16 +249,6 @@ function limpar() {
     document.getElementById('tem-parada').checked=false; 
     toggleParada(); 
     definirDataPadrao(); 
-}
-
-function renderLista(db) {
-    const busca = document.getElementById('busca').value.toLowerCase();
-    document.getElementById('lista-corridas').innerHTML = db.filter(c=>c.origem.toLowerCase().includes(busca)).slice().reverse().map(c=>`
-        <div class="item-corrida" style="border-left-color:${c.mod==='99'?'#ffcc00':'#00ff88'}">
-            <div><p style="font-size:0.6rem;color:#666;text-transform:uppercase">${c.mod}</p><p><b>${c.origem} ⮕ ${c.destino}</b></p>
-            <p style="font-size:0.65rem;color:#888;margin-top:2px;">${new Date(c.data).toLocaleDateString()} ${c.km > 0 ? `• ${c.km}km` : ''}</p></div>
-            <div style="text-align:right"><b>R$ ${c.valor.toFixed(2)}</b><span onclick="remover(${c.id})" style="display:block;font-size:0.6rem;color:#ff4444;margin-top:5px;cursor:pointer">Remover</span></div>
-        </div>`).join('');
 }
 
 function remover(id) {
