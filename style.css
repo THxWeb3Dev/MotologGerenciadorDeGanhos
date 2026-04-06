@@ -73,5 +73,11 @@ input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px;
 .btn-comprar { display: block; background: #00e676; color: #000; text-align: center; text-decoration: none; font-weight: bold; padding: 14px; border-radius: 8px; font-size: 0.9rem; transition: 0.2s; }
 .btn-comprar:active { background: #00c853; }
 
+/* Agrupamento de Histórico e Pesquisa */
 .search-input { margin: 20px 0 15px; }
+.grupo-data { margin-top: 20px; margin-bottom: 10px; }
+.cabecalho-grupo { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #000; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 10; }
+.cabecalho-grupo span:first-child { font-size: 0.85rem; font-weight: 900; color: var(--accent); text-transform: uppercase; }
+.cabecalho-grupo .total-dia { font-size: 0.75rem; color: #00ff88; font-weight: bold; }
 .item-corrida { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 4px solid #333; }
+.hora-item { font-size: 0.65rem; color: #666; margin-bottom: 3px; display: block; font-weight: bold; }
