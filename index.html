@@ -69,7 +69,10 @@
                 <label class="radio-btn"><input type="radio" name="mod" value="Particular"><span>Particular</span></label>
             </div>
             <div class="input-stack">
-                <input type="date" id="data-corrida" class="date-input" title="Data da Corrida">
+                <div class="input-group">
+                    <input type="date" id="data-corrida" class="date-input" title="Data da Corrida">
+                    <input type="time" id="hora-corrida" class="date-input" title="Horário da Corrida">
+                </div>
                 
                 <div class="input-group">
                     <input type="text" id="origem" placeholder="Origem">
@@ -90,7 +93,7 @@
 
         <section class="listagem">
             <input type="text" id="busca" class="search-input" placeholder="🔍 Filtrar histórico...">
-            <div id="lista-corridas"></div>
+            <div id="lista-agrupada"></div>
         </section>
     </div>
 
@@ -153,7 +156,7 @@
                      </div>
                      <a href="https://s.shopee.com.br/4fry9grEPS" target="_blank" class="btn-comprar">🛒 Comprar Agora</a>
                      </div>
-                </div>
+                 </div>
             </div>
         </div>
     </div>
