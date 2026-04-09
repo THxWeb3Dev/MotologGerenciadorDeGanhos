@@ -20,7 +20,7 @@
     <div class="container">
         <header>
             <h1>MOTOLOG EXPRESS • PRO</h1>
-            <p class="subtitle">GERENCIADOR DE GANHOS | V1.0</p>
+            <p class="subtitle">GERENCIADOR DE GANHOS | V1.1</p>
         </header>
 
         <div class="action-buttons">
@@ -47,16 +47,16 @@
         <section class="central-ganhos">
             <div class="ganhos-header">
                 <h3>Central de Ganhos</h3>
-                <span id="periodo-semana"></span>
+                <button onclick="abrirModalInsights()" class="btn-insight">🧠 Insights</button>
             </div>
             <div class="card-99">
                 <div id="grafico-real" class="grafico-container"></div>
                 <div class="dias-semana">
-                    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                    <span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span>
                 </div>
                 <hr class="divider">
                 <div class="stats-99">
-                    <div class="stat-item"><span class="stat-label">Ganhos (7d)</span><span class="stat-value" id="99-ganho-semana">R$ 0,00</span></div>
+                    <div class="stat-item"><span class="stat-label">Ganhos (Semana)</span><span class="stat-value" id="99-ganho-semana">R$ 0,00</span></div>
                     <div class="stat-item"><span class="stat-label">Corridas</span><span class="stat-value" id="99-qtd-corridas">0</span></div>
                 </div>
             </div>
@@ -104,6 +104,26 @@
                 <span onclick="fecharModal()" class="close">&times;</span>
             </div>
             <div id="modal-corpo"></div>
+        </div>
+    </div>
+
+    <div id="modal-insights" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🧠 Mapa de Calor</h2>
+                <span onclick="fecharModalInsights()" class="close">&times;</span>
+            </div>
+            <p class="modal-desc">Baseado no seu histórico de corridas, estes são os melhores pontos e horários para você faturar mais:</p>
+            
+            <h4 style="color: #00ff88; margin-bottom: 5px;">📍 Melhores Locais (Origem)</h4>
+            <div id="insights-locais" style="background:#141414; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85rem; color:#ccc;">
+                Carregando...
+            </div>
+
+            <h4 style="color: #ffcc00; margin-bottom: 5px;">⏰ Horários de Pico</h4>
+            <div id="insights-horarios" style="background:#141414; padding:10px; border-radius:8px; font-size:0.85rem; color:#ccc;">
+                Carregando...
+            </div>
         </div>
     </div>
 
@@ -156,7 +176,6 @@
                      </div>
                      <a href="https://s.shopee.com.br/4fry9grEPS" target="_blank" class="btn-comprar">🛒 Comprar Agora</a>
                      </div>
-                 </div>
             </div>
         </div>
     </div>
