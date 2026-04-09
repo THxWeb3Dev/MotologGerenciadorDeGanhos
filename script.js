@@ -1,7 +1,7 @@
 const DB = "motolog_v1";
 
 // ==========================================
-// REGISTRO DO SERVICE WORKER E INSTALAÇÃO PWA
+// REGISTRO PWA
 // ==========================================
 let deferredPrompt;
 
@@ -101,52 +101,64 @@ function atualizar() {
     renderListaAgrupada(db);
 }
 
+// LÓGICA DO GRÁFICO ATUALIZADA (Escalonamento Dinâmico e Segunda como Dia 0)
 function renderGrafico(db) {
     const container = document.getElementById('grafico-real');
     container.innerHTML = "";
     const hoje = new Date();
-    hoje.setHours(23, 59, 59, 999);
     
+    // Converte o dia para que Segunda seja 0 e Domingo seja 6
+    const diaSemanaAtual = (hoje.getDay() + 6) % 7; 
+    
+    // Descobre o início da semana atual (Segunda-feira)
+    const inicioSemana = new Date(hoje);
+    inicioSemana.setDate(hoje.getDate() - diaSemanaAtual);
+    inicioSemana.setHours(0,0,0,0);
+
     let totalSemana = 0;
+    let qtdSemana = 0;
+    
+    const totaisPorDia = [0, 0, 0, 0, 0, 0, 0]; // Seg a Dom
+    const dadosPorDia = [[], [], [], [], [], [], []];
+
+    db.forEach(c => {
+        const d = new Date(c.data);
+        if (d >= inicioSemana) {
+            const diaAjustado = (d.getDay() + 6) % 7; // Seg = 0, Dom = 6
+            totaisPorDia[diaAjustado] += c.valor;
+            dadosPorDia[diaAjustado].push(c);
+            totalSemana += c.valor;
+            qtdSemana++;
+        }
+    });
+
+    // Impede o gráfico de "estourar" achando o valor mais alto da semana
+    const maiorValorDaSemana = Math.max(...totaisPorDia, 1); 
 
     for(let i=0; i<7; i++) {
-        const diaDados = db.filter(c => {
-            const d = new Date(c.data);
-            const diffDias = (hoje - d) / (1000 * 60 * 60 * 24);
-            return d.getDay() === i && diffDias >= 0 && diffDias < 7;
-        });
-        const total = diaDados.reduce((a,b)=>a+b.valor, 0);
-        totalSemana += total;
         const bar = document.createElement('div');
-        bar.className = `bar ${new Date().getDay() === i ? 'active' : ''}`;
-        bar.style.height = `${Math.max((total/300)*100, 5)}%`;
-        bar.onclick = () => abrirModal(diaDados, i);
+        bar.className = `bar ${diaSemanaAtual === i ? 'active' : ''}`;
+        
+        // A altura da barra é baseada em quem ganhou mais na semana (100%)
+        let altura = (totaisPorDia[i] / maiorValorDaSemana) * 100;
+        bar.style.height = `${Math.max(altura, 5)}%`; 
+        
+        bar.onclick = () => abrirModal(dadosPorDia[i], i);
         container.appendChild(bar);
     }
-    document.getElementById('99-ganho-semana').innerText = fmt(totalSemana);
     
-    const qtdSemana = db.filter(c => {
-        const diff = (hoje - new Date(c.data)) / (1000 * 60 * 60 * 24);
-        return diff >= 0 && diff < 7;
-    }).length;
+    document.getElementById('99-ganho-semana').innerText = fmt(totalSemana);
     document.getElementById('99-qtd-corridas').innerText = qtdSemana;
 }
 
-// ==========================================
-// RENDERIZAÇÃO DA LISTA AGRUPADA
-// ==========================================
 function renderListaAgrupada(db) {
     const busca = document.getElementById('busca').value.toLowerCase();
     const listaDiv = document.getElementById('lista-agrupada');
     listaDiv.innerHTML = "";
 
-    // 1. Filtra a busca
     let filtradas = db.filter(c => c.origem.toLowerCase().includes(busca) || c.destino.toLowerCase().includes(busca));
-
-    // 2. Ordena da corrida mais recente para a mais antiga
     filtradas.sort((a, b) => new Date(b.data) - new Date(a.data));
 
-    // 3. Agrupa as corridas pelas datas
     const grupos = {};
     filtradas.forEach(c => {
         const dataKey = new Date(c.data).toDateString();
@@ -155,7 +167,6 @@ function renderListaAgrupada(db) {
         grupos[dataKey].corridas.push(c);
     });
 
-    // 4. Cria o HTML agrupado
     for (const dataKey in grupos) {
         const dataObj = new Date(dataKey);
         let dataLabel = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -199,7 +210,7 @@ function renderListaAgrupada(db) {
 // ==========================================
 function abrirModal(dados, idx) {
     if(!dados.length) return;
-    const dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+    const dias = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
     document.getElementById('modal-titulo').innerText = dias[idx];
     const v99 = dados.filter(c=>c.mod==="99").reduce((a,b)=>a+b.valor,0);
     const vPart = dados.filter(c=>c.mod==="Particular").reduce((a,b)=>a+b.valor,0);
@@ -221,6 +232,38 @@ function abrirModal(dados, idx) {
 }
 function fecharModal() { document.getElementById('modal-detalhes').style.display="none"; }
 
+// MODAL DE INSIGHTS (ZONAS E HORÁRIOS)
+function abrirModalInsights() {
+    const db = JSON.parse(localStorage.getItem(DB) || "[]");
+    if(db.length === 0) return alert("Cadastre corridas primeiro para gerar seus insights!");
+
+    const locais = {};
+    const horarios = {};
+
+    db.forEach(c => {
+        // Mapeamento de Zonas (Bairros)
+        const orig = c.origem.toUpperCase().trim();
+        if(orig) locais[orig] = (locais[orig] || 0) + 1;
+
+        // Mapeamento de Horários
+        const h = new Date(c.data).getHours();
+        const faixa = `${String(h).padStart(2,'0')}:00 às ${String(h+1).padStart(2,'0')}:00`;
+        horarios[faixa] = (horarios[faixa] || 0) + 1;
+    });
+
+    const topLocais = Object.entries(locais).sort((a,b) => b[1] - a[1]).slice(0, 3);
+    const topHorarios = Object.entries(horarios).sort((a,b) => b[1] - a[1]).slice(0, 3);
+
+    const htmlLocais = topLocais.map((l, i) => `<div style="display:flex;justify-content:space-between;padding:5px 0;"><span><b>${i+1}º</b> ${l[0]}</span><span>${l[1]} viag.</span></div>`).join('');
+    const htmlHorarios = topHorarios.map((h, i) => `<div style="display:flex;justify-content:space-between;padding:5px 0;"><span><b>${i+1}º</b> ${h[0]}</span><span>${h[1]} viag.</span></div>`).join('');
+
+    document.getElementById('insights-locais').innerHTML = htmlLocais || "Dados insuficientes.";
+    document.getElementById('insights-horarios').innerHTML = htmlHorarios || "Dados insuficientes.";
+    
+    document.getElementById('modal-insights').style.display = "flex";
+}
+function fecharModalInsights() { document.getElementById('modal-insights').style.display="none"; }
+
 function abrirModalPix() { document.getElementById('modal-pix').style.display="flex"; }
 function fecharModalPix() { 
     document.getElementById('modal-pix').style.display="none"; 
@@ -240,8 +283,8 @@ function copiarPix() {
         alert("Erro ao copiar. Selecione o e-mail na tela e copie manualmente.");
     });
 }
-// ==========================================
 
+// ==========================================
 function fmt(v) { return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 
 function limpar() { 
